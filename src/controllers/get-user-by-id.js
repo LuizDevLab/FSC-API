@@ -7,7 +7,7 @@ export class GetUserByIdController {
   async execute(httpRequest) {
     try {
 
-      const isIdValid = validator.isUUID(httpRequest.params.userId)
+      const isIdValid = checkIfIdIsValid(httpRequest.params.userId)
 
       if (!isIdValid) {
         return invalidIdResponse()

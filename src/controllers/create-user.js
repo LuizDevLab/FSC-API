@@ -1,5 +1,4 @@
 import { CreateUserUseCase } from "../use-cases/create-user.js";
-import validator from "validator";
 import { EmailAlreadyInUseError } from "../errors/user.js";
 import { badRequest, created, serverError } from "./helpers/http.js";
 import { checkIfEmailIsValid, checkIfPasswordIsValid, emailAlreadyInUseResponse, invalidPasswordResponse } from "./helpers/user.js";
@@ -8,42 +7,38 @@ export class CreateUserController {
   async execute(httpRequest) {
     try {
       const params = httpRequest.body;
-      // validar a requisição (campos obrigatórios, tamanho de senha e email válido)
-      const requireFields = ["first_name", "last_name", "email", "password"];
+      const requiredFields = ["first_name", "last_name", "email", "password"];
 
-      for (const field of requireFields || params[field].trim().length == 0) {
-        if (!params[field]) {
+      // Validação de campos obrigatórios
+      for (const field of requiredFields) {
+        if (!params[field] || params[field].trim().length === 0) {
           return badRequest({ message: `Missing params: ${field}` });
         }
       }
 
-      const passwordIsValid = checkIfPasswordIsValid()
-
-      //tamanho de senha
+      // Validação da senha
+      const passwordIsValid = checkIfPasswordIsValid(params.password);
       if (!passwordIsValid) {
         return invalidPasswordResponse();
       }
 
-      //validação do email
-      const emailIsValid = checkIfEmailIsValid();
-
+      // Validação do email
+      const emailIsValid = checkIfEmailIsValid(params.email);
       if (!emailIsValid) {
         return emailAlreadyInUseResponse();
       }
 
-      //chamar o usecase
+      // Chamar o use case
       const createUserUseCase = new CreateUserUseCase();
-
       const createdUser = await createUserUseCase.execute(params);
 
       return created(createdUser);
-      //retornar status HTTP
     } catch (error) {
       if (error instanceof EmailAlreadyInUseError) {
         return badRequest({ message: error.message });
       }
 
-      console.log(error);
+      console.error(error);
       return serverError();
     }
   }

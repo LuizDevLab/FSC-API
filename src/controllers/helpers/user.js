@@ -14,7 +14,7 @@ export const emailAlreadyInUseResponse = () => {
 };
 
 export const invalidIdResponse = () => {
-  badRequest({
+  return badRequest({
     message: "The provided Id is not avaliable",
   });
 };

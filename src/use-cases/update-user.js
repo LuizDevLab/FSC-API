@@ -23,9 +23,8 @@ export class UpdateUserCase {
     //2. se a senha estiver sendo atualizada, criptografa-la
     if (updateUserParams.password) {
       const hashedPassword = await bcrypt.hash(updateUserParams.password, 10);
+      user.password = hashedPassword;
     }
-
-    user.password = hashedPassword;
 
     //3. chamar o repository para atualizar o usuario
     const postgreUpdateUserRepository = new PostgresUpdateUserRepository();

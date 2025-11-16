@@ -6,15 +6,15 @@ import { EmailAlreadyInUseError } from "../errors/user.js";
 
 export class CreateUserUseCase {
 
-  constructor(postgresCreateUserRepository) {
-    this.postgresCreateUserRepository = new PostgresCreateUserRepository()
+  constructor(createUserRepository, getUserByEmail) {
+    this.createUserRepository = createUserRepository
+    this.getUserByEmail = getUserByEmail
   }
 
   async execute(createUserParams) {
     //TODO: verificar se o emial ja esta em uso
-    const postgresGetUserByEmail = new PostgresGetUserByEmailRepository();
 
-    const userWithProvidedEmail = await postgresGetUserByEmail.execute(
+    const userWithProvidedEmail = await this.getUserByEmail.execute(
       createUserParams.email
     );
 
@@ -36,9 +36,8 @@ export class CreateUserUseCase {
     };
 
     // chamar o repositorio
-    const postgresCreateUserRepository = new PostgresCreateUserRepository();
 
-    const createdUser = await postgresCreateUserRepository.execute(user);
+    const createdUser = await this.createUserRepository.execute(user);
 
     return createdUser;
   }

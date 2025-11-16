@@ -1,20 +1,23 @@
+import { PostgresGetUserById } from "../repositories/postgres/get-user-by-id.js";
 import { GetUserByIdUseCase } from "../use-cases/get-user-by-id.js";
 import { ok, serverError } from "./helpers/http.js";
 import { checkIfIdIsValid, invalidIdResponse } from "./helpers/user.js";
 
 export class GetUserByIdController {
+
+  constructor(getUserByIdUseCase) {
+    this.getUserByIdUseCase = getUserByIdUseCase
+  }
+
   async execute(httpRequest) {
     try {
-
-      const isIdValid = checkIfIdIsValid(httpRequest.params.userId)
+      const isIdValid = checkIfIdIsValid(httpRequest.params.userId);
 
       if (!isIdValid) {
-        return invalidIdResponse()
+        return invalidIdResponse();
       }
 
-      const getUserByIdUseCase = new GetUserByIdUseCase();
-
-      const user = await getUserByIdUseCase.execute(httpRequest.params.userId);
+      const user = await this.getUserByIdUseCase.execute(httpRequest.params.userId);
 
       if (!user) {
         return {
@@ -25,7 +28,7 @@ export class GetUserByIdController {
         };
       }
 
-      return ok(user)
+      return ok(user);
     } catch (error) {
       console.log(error);
       return serverError();

@@ -4,6 +4,8 @@ import { CreateUserController } from "./src/controllers/create-user.js";
 import { GetUserByIdController } from "./src/controllers/get-user-by-id.js";
 import { UpdateUserController } from "./src/controllers/update-user.js";
 import { DeleteUserController } from "./src/controllers/delete-user.js";
+import { GetUserByIdUseCase } from "./src/use-cases/get-user-by-id.js";
+import { PostgresGetUserById } from "./src/repositories/postgres/get-user-by-id.js";
 
 const app = express();
 
@@ -17,16 +19,20 @@ app.post("/api/users", async (request, response) => {
   response.status(statusCode).send(body);
 });
 
-app.patch('/api/users/:userId', async (request, response) => {
-  const updateUserController = new UpdateUserController
+app.patch("/api/users/:userId", async (request, response) => {
+  const updateUserController = new UpdateUserController();
 
-  const {statusCode, body} = await updateUserController.execute(request)
+  const { statusCode, body } = await updateUserController.execute(request);
 
-  response.status(statusCode).send(body)
-})
+  response.status(statusCode).send(body);
+});
 
 app.get("/api/users/:userId", async (request, response) => {
-  const getUserByIdController = new GetUserByIdController();
+  const getUserByIdRepository = new PostgresGetUserById();
+
+  const getUserByIdUseCase = new GetUserByIdUseCase(getUserByIdRepository);
+
+  const getUserByIdController = new GetUserByIdController(getUserByIdUseCase);
 
   const { statusCode, body } = await getUserByIdController.execute(request);
 
@@ -34,12 +40,12 @@ app.get("/api/users/:userId", async (request, response) => {
 });
 
 app.delete("/api/users/:userId", async (request, response) => {
-  const deleteUserController = new DeleteUserController()
+  const deleteUserController = new DeleteUserController();
 
-  const { statusCode, body } = await deleteUserController.execute(request)
+  const { statusCode, body } = await deleteUserController.execute(request);
 
-  response.status(statusCode).send(body)
-})
+  response.status(statusCode).send(body);
+});
 
 app.listen(process.env.PORT, () =>
   console.log(`Listening on port ${process.env.PORT}`)

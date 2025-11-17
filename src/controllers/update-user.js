@@ -1,17 +1,28 @@
 import validator from "validator";
 import { badRequest, ok, serverError } from "./helpers/http.js";
 import { UpdateUserCase } from "../use-cases/update-user.js";
-import { checkIfEmailIsValid, checkIfIdIsValid, checkIfPasswordIsValid, emailAlreadyInUseResponse, invalidIdResponse, invalidPasswordResponse } from "./helpers/user.js";
+import {
+  checkIfEmailIsValid,
+  checkIfIdIsValid,
+  checkIfPasswordIsValid,
+  emailAlreadyInUseResponse,
+  invalidIdResponse,
+  invalidPasswordResponse,
+} from "./helpers/user.js";
 
 export class UpdateUserController {
+  constructor(updateUserUseCase) {
+    this.updateUserUseCase = updateUserUseCase;
+  }
+
   async execute(httpRequest) {
     try {
       const userId = httpRequest.params.userId;
 
-      const isIdValid = checkIfIdIsValid(userId)
+      const isIdValid = checkIfIdIsValid(userId);
 
       if (!isIdValid) {
-       return invalidIdResponse()
+        return invalidIdResponse();
       }
 
       const updateUserParams = httpRequest.body;
@@ -30,10 +41,12 @@ export class UpdateUserController {
 
       //senha
       if (updateUserParams.password) {
-        const passwordIsValid = checkIfPasswordIsValid(updateUserParams.password)
+        const passwordIsValid = checkIfPasswordIsValid(
+          updateUserParams.password
+        );
 
         if (!passwordIsValid) {
-          return invalidPasswordResponse()
+          return invalidPasswordResponse();
         }
       }
 
@@ -41,15 +54,16 @@ export class UpdateUserController {
         const emailIsValid = checkIfEmailIsValid(updateUserParams.email);
 
         if (!emailIsValid) {
-          return emailAlreadyInUseResponse()
+          return emailAlreadyInUseResponse();
         }
       }
 
-      const updateUserUseCase = new UpdateUserCase();
+      const updatedUser = await this.updateUserUseCase.execute(
+        userId,
+        updateUserParams
+      );
 
-      const updatedUser = await updateUserUseCase.execute(userId, updateUserParams);
-
-      return ok(updatedUser)
+      return ok(updatedUser);
     } catch (error) {
       console.log(error);
       return serverError();

@@ -4,11 +4,16 @@ import { PostgresGetUserByEmailRepository } from "../repositories/postgres/get-u
 import { PostgresUpdateUserRepository } from "../repositories/postgres/upate-user.js";
 
 export class UpdateUserCase {
+
+  constructor(getUserByEmailRepository, updateUserRepository) {
+    this.getUserByEmailRepository = getUserByEmailRepository
+    this.updateUserRepository = updateUserRepository
+  } 
+
   async execute(userId, updateUserParams) {
     //1. se o email estiver sendo atualizado, verificar se ele ja esta em uso
-    const postgresGetUserByEmail = new PostgresGetUserByEmailRepository();
 
-    const userWithProvidedEmail = await postgresGetUserByEmail.execute(
+    const userWithProvidedEmail = await this.getUserByEmailRepository.execute(
       updateUserParams.email
     );
 
@@ -27,9 +32,8 @@ export class UpdateUserCase {
     }
 
     //3. chamar o repository para atualizar o usuario
-    const postgreUpdateUserRepository = new PostgresUpdateUserRepository();
 
-    const updatedUser = await postgreUpdateUserRepository.execute(
+    const updatedUser = await this.updateUserRepository.execute(
       userId,
       user
     );

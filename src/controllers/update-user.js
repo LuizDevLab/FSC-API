@@ -3,12 +3,11 @@ import { badRequest, ok, serverError } from "./helpers/http.js";
 import { UpdateUserCase } from "../use-cases/update-user.js";
 import {
   checkIfEmailIsValid,
-  checkIfIdIsValid,
   checkIfPasswordIsValid,
   emailAlreadyInUseResponse,
-  invalidIdResponse,
   invalidPasswordResponse,
 } from "./helpers/user.js";
+import { checkIfIdIsValid, invalidIdResponse } from "./helpers/validation.js";
 
 export class UpdateUserController {
   constructor(updateUserUseCase) {

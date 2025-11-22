@@ -1,6 +1,6 @@
 import { DeleteUserUseCase } from "../use-cases/delete-user.js"
 import { ok, serverError } from "./helpers/http.js"
-import { checkIfIdIsValid, invalidIdResponse } from "./helpers/user.js"
+import { checkIfIdIsValid, invalidIdResponse } from "./helpers/validation.js"
 
 export class DeleteUserController {
 

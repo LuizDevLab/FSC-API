@@ -13,14 +13,9 @@ export const emailAlreadyInUseResponse = () => {
   });
 };
 
-export const invalidIdResponse = () => {
-  return badRequest({
-    message: "The provided Id is not avaliable",
-  });
-};
+
 
 export const checkIfPasswordIsValid = (password) => password.length >= 6;
 
 export const checkIfEmailIsValid = (email) => validator.isEmail(email);
 
-export const checkIfIdIsValid = (id) => validator.isUUID(id)

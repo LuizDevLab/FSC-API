@@ -1,6 +1,10 @@
 import validator from "validator";
 import { badRequest, created, serverError } from "../helpers/http.js";
-import { checkIfIdIsValid, invalidIdResponse } from "../helpers/validation.js";
+import {
+  checkIfIdIsValid,
+  invalidIdResponse,
+  validateRequiredFields,
+} from "../helpers/validation.js";
 
 export class CreateTransactionController {
   constructor(createTransactionUseCase) {
@@ -11,19 +15,18 @@ export class CreateTransactionController {
     try {
       const params = httpRequest.body;
 
-      const requiredFields = [
-        "user_id",
-        "name",
-        "date",
-        "amount",
-        "type",
-      ];
+      const requiredFields = ["user_id", "name", "date", "amount", "type"];
 
       // Validação de campos obrigatórios
-      for (const field of requiredFields) {
-        if (!params[field] || params[field].toString().trim().length === 0) {
-          return badRequest({ message: `Missing params: ${field}` });
-        }
+      const { ok: requiredFieldsWereProvided, missingFields } = validateRequiredFields(
+        params,
+        requiredFields
+      );
+
+      if (!requiredFieldsWereProvided) {
+        return badRequest({
+          message: `The field ${missingFields} is required`
+        })
       }
 
       const userIdIsValid = checkIfIdIsValid(params.user_id);
@@ -50,9 +53,9 @@ export class CreateTransactionController {
         });
       }
 
-      const type = params.type.trim().toUpperCase()
+      const type = params.type.trim().toUpperCase();
 
-      const typeIsValid = ["EARNING", "EXPENSE", "INVESTMENT"].includes(type)
+      const typeIsValid = ["EARNING", "EXPENSE", "INVESTMENT"].includes(type);
 
       if (!typeIsValid) {
         return badRequest({
@@ -61,10 +64,11 @@ export class CreateTransactionController {
       }
 
       const transaction = await this.createTransactionUseCase.execute({
-        ...params, type
-      })
+        ...params,
+        type,
+      });
 
-      return created(transaction)
+      return created(transaction);
     } catch (error) {
       console.error(error);
       return serverError();

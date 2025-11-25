@@ -1,19 +1,34 @@
 import { EmailAlreadyInUseError } from "../errors/user.js";
 import { badRequest, created, serverError } from "./helpers/http.js";
-import { checkIfEmailIsValid, checkIfPasswordIsValid, emailAlreadyInUseResponse, invalidPasswordResponse } from "./helpers/user.js";
+import {
+  checkIfEmailIsValid,
+  checkIfPasswordIsValid,
+  emailAlreadyInUseResponse,
+  invalidPasswordResponse,
+} from "./helpers/user.js";
+import { validateRequiredFields } from "./helpers/validation.js";
 
 export class CreateUserController {
-
   constructor(createUserUseCase) {
-    this.createUserUseCase = createUserUseCase
+    this.createUserUseCase = createUserUseCase;
   }
 
   async execute(httpRequest) {
     try {
       const params = httpRequest.body;
       const requiredFields = ["first_name", "last_name", "email", "password"];
-
       // Validação de campos obrigatórios
+      const { ok: requiredFieldsWereProvided, missingFields } = validateRequiredFields(
+        params,
+        requiredFields
+      );
+
+      if (!requiredFieldsWereProvided) {
+        return badRequest({
+          message: `The field ${missingFields} is required`,
+        });
+      }
+
       for (const field of requiredFields) {
         if (!params[field] || params[field].trim().length === 0) {
           return badRequest({ message: `Missing params: ${field}` });

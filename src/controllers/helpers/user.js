@@ -13,6 +13,11 @@ export const emailAlreadyInUseResponse = () => {
   });
 };
 
+export const userNotFoundResponse = () => {
+  return badRequest({
+    message: "The provided user is invalid or not exists"
+  })
+}
 
 
 export const checkIfPasswordIsValid = (password) => password.length >= 6;

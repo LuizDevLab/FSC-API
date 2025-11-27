@@ -7,7 +7,7 @@ import {
   requiredFieldIsMissingResponse,
 } from "../helpers/validation.js";
 
-export class PostgresGetTransactionsByUserIdController {
+export class GetTransactionsByUserIdController {
   constructor(getTransactionByUserIdUseCase) {
     this.getTransactionByUserIdUseCase = getTransactionByUserIdUseCase;
   }

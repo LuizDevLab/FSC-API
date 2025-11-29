@@ -1,15 +1,21 @@
-import { badRequest, serverError } from "../helpers/http.js";
-import { checkIfAmountIsValid, checkIfTypeIsValid, invalidAmountResponse, invalidTypeResponse } from "../helpers/transaction.js";
+import { badRequest, ok, serverError } from "../helpers/http.js";
+import {
+  checkIfAmountIsValid,
+  checkIfTypeIsValid,
+  invalidAmountResponse,
+  invalidTypeResponse,
+} from "../helpers/transaction.js";
 import { checkIfIdIsValid, invalidIdResponse } from "../helpers/validation.js";
 
 export class UpdateTransactionController {
   constructor(updateTransactionUseCase) {
-    this.updateTransactionUseCase = updateTransactionUseCase
+    this.updateTransactionUseCase = updateTransactionUseCase;
   }
 
   async execute(httpRequest) {
     try {
-      const idIsValid = checkIfIdIsValid();
+      const transactionId = httpRequest.params.transactionId;
+      const idIsValid = checkIfIdIsValid(transactionId);
 
       if (!idIsValid) {
         return invalidIdResponse();
@@ -21,36 +27,36 @@ export class UpdateTransactionController {
 
       const someFieldIsNotAllowed = Object.keys(params).some(
         (field) => !allowedFields.includes(field)
-      )
+      );
 
       if (someFieldIsNotAllowed) {
         return badRequest({
-          message: "Some provided field is not allowed"
-        })
+          message: "Some provided field is not allowed",
+        });
       }
 
       if (params.amount) {
-        const amountIsValid = checkIfAmountIsValid(params.amount)
+        const amountIsValid = checkIfAmountIsValid(params.amount);
 
-        if(!amountIsValid) {
-          return invalidAmountResponse()
+        if (!amountIsValid) {
+          return invalidAmountResponse();
         }
       }
 
       if (params.type) {
-        const typeIsValid = checkIfTypeIsValid(params.type)
+        const typeIsValid = checkIfTypeIsValid(params.type);
 
         if (!typeIsValid) {
-          return invalidTypeResponse()
+          return invalidTypeResponse();
         }
       }
 
       const transaction = await this.updateTransactionUseCase.execute(
-        httpRequest.params.transactionId,
+        transactionId,
         params
-      )
+      );
 
-      return ok(transaction)
+      return ok(transaction);
     } catch (error) {
       console.error(error);
       return serverError();

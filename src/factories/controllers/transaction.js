@@ -1,10 +1,13 @@
 import { CreateTransactionController } from "../../controllers/transactions/create-transaction.js";
 import { GetTransactionsByUserIdController } from "../../controllers/transactions/get-transactions-by-user-id.js";
+import { UpdateTransactionController } from "../../controllers/transactions/update-transaction.js";
 import { PostgresGetUserById } from "../../repositories/postgres/get-user-by-id.js";
 import { PostgresCreateTransactionRepository } from "../../repositories/postgres/transactions/create-transaction.js";
 import { PostgresGetTransactionsByUserIdRepository } from "../../repositories/postgres/transactions/get-transactions-by-user-id.js";
+import { PostgresUpdateTransactionRepository } from "../../repositories/postgres/transactions/update-transaction.js";
 import { CreateTransactionUseCase } from "../../use-cases/transactions/create-transaction.js";
 import { GetTransactionsByUserIdUseCase } from "../../use-cases/transactions/get-transactions-by-user-id.js";
+import { UpdateTransactionUseCase } from "../../use-cases/transactions/update-transaction.js";
 
 export const makeCreateTransactionController = () => {
   const createTransactionRepository = new PostgresCreateTransactionRepository();
@@ -39,3 +42,13 @@ export const makeGetTransactionsByUserIdController  = () => {
 
   return geetTransactionsByUserIdcontroller;
 };
+
+export const makeUpdateTransactionController = () => {
+  const updateTransactionRepository = new PostgresUpdateTransactionRepository()
+
+  const updateTransactionUseCase = new UpdateTransactionUseCase(updateTransactionRepository)
+
+  const updateTransactionController = new UpdateTransactionController(updateTransactionUseCase)
+
+  return updateTransactionController
+}

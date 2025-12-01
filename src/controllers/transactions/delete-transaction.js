@@ -1,7 +1,7 @@
 import { ok, serverError } from "../helpers/http.js";
 import { checkIfIdIsValid, invalidIdResponse } from "../helpers/validation.js";
 
-export class DeleteTransactionUseCase {
+export class DeleteTransactionController {
   constructor(deleteTransactionUseCase) {
     this.deleteTransactionUseCase = deleteTransactionUseCase;
   }

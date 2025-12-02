@@ -1,5 +1,3 @@
-import { PostgresGetUserById } from "../repositories/postgres/get-user-by-id.js";
-import { GetUserByIdUseCase } from "../use-cases/get-user-by-id.js";
 import { ok, serverError } from "./helpers/http.js";
 import { checkIfIdIsValid, invalidIdResponse } from "./helpers/validation.js";
 

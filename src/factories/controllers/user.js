@@ -64,12 +64,12 @@ export const makeDeleteUserController = () => {
 };
 
 export const makeGetUserBalanceController = () => {
-  const getUserByEmailRepository = new PostgresGetUserByEmailRepository();
+  const getUserByIdRepository = new PostgresGetUserById();
   const getUserBalanceRepository = new PostgresGetUserBalanceRepository();
 
   const getUserBalanceUseCase = new GetUserBalanceUseCase(
     getUserBalanceRepository,
-    getUserByEmailRepository
+    getUserByIdRepository
   );
 
   const getUserBalanceController = new GetUserBalanceController(

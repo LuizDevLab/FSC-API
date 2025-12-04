@@ -1,12 +1,8 @@
 import { EmailAlreadyInUseError } from "../errors/user.js";
+import { createUserSchema } from "../schemas/schemas-user.js";
 import { badRequest, created, serverError } from "./helpers/http.js";
-import {
-  checkIfEmailIsValid,
-  checkIfPasswordIsValid,
-  emailAlreadyInUseResponse,
-  invalidPasswordResponse,
-} from "./helpers/user.js";
-import { requiredFieldIsMissingResponse, validateRequiredFields } from "./helpers/validation.js";
+
+import { z, ZodError } from "zod";
 
 export class CreateUserController {
   constructor(createUserUseCase) {
@@ -16,40 +12,19 @@ export class CreateUserController {
   async execute(httpRequest) {
     try {
       const params = httpRequest.body;
-      const requiredFields = ["first_name", "last_name", "email", "password"];
-      // Validação de campos obrigatórios
-      const { ok: requiredFieldsWereProvided, missingFields } = validateRequiredFields(
-        params,
-        requiredFields
-      );
 
-      if (!requiredFieldsWereProvided) {
-        return requiredFieldIsMissingResponse(missingFields)
-      }
-      
-      for (const field of requiredFields) {
-        if (!params[field] || params[field].trim().length === 0) {
-          return badRequest({ message: `Missing params: ${field}` });
-        }
-      }
+      await createUserSchema.parseAsync(params);
 
-      // Validação da senha
-      const passwordIsValid = checkIfPasswordIsValid(params.password);
-      if (!passwordIsValid) {
-        return invalidPasswordResponse();
-      }
-
-      // Validação do email
-      const emailIsValid = checkIfEmailIsValid(params.email);
-      if (!emailIsValid) {
-        return emailAlreadyInUseResponse();
-      }
-
-      // Chamar o use case
       const createdUser = await this.createUserUseCase.execute(params);
 
       return created(createdUser);
     } catch (error) {
+      if (error instanceof ZodError) {
+        return badRequest({
+          message: error.issues[0].message,
+        });
+      }
+
       if (error instanceof EmailAlreadyInUseError) {
         return badRequest({ message: error.message });
       }

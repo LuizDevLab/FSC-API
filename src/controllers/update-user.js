@@ -8,6 +8,9 @@ import {
   invalidPasswordResponse,
 } from "./helpers/user.js";
 import { checkIfIdIsValid, invalidIdResponse } from "./helpers/validation.js";
+import { updateUserSchema } from "../schemas/schemas-user.js";
+
+import { ZodError } from "zod";
 
 export class UpdateUserController {
   constructor(updateUserUseCase) {
@@ -16,9 +19,9 @@ export class UpdateUserController {
 
   async execute(httpRequest) {
     try {
-      const userId = httpRequest.params.userId;
+      const params = httpRequest.params.userId;
 
-      const isIdValid = checkIfIdIsValid(userId);
+      const isIdValid = checkIfIdIsValid(params);
 
       if (!isIdValid) {
         return invalidIdResponse();
@@ -26,44 +29,21 @@ export class UpdateUserController {
 
       const updateUserParams = httpRequest.body;
 
-      const allowedFields = ["first_name", "last_name", "email", "password"];
-
-      const someFieldIsNotAllowed = Object.keys(updateUserParams).some(
-        (field) => !allowedFields.includes(field)
-      );
-
-      if (someFieldIsNotAllowed) {
-        return badRequest({
-          message: "Some provided field is not allowed",
-        });
-      }
-
-      //senha
-      if (updateUserParams.password) {
-        const passwordIsValid = checkIfPasswordIsValid(
-          updateUserParams.password
-        );
-
-        if (!passwordIsValid) {
-          return invalidPasswordResponse();
-        }
-      }
-
-      if (updateUserParams.email) {
-        const emailIsValid = checkIfEmailIsValid(updateUserParams.email);
-
-        if (!emailIsValid) {
-          return emailAlreadyInUseResponse();
-        }
-      }
+      await updateUserSchema.parseAsync(updateUserParams);
 
       const updatedUser = await this.updateUserUseCase.execute(
-        userId,
+        params,
         updateUserParams
       );
 
       return ok(updatedUser);
     } catch (error) {
+      if (error instanceof ZodError) {
+        return badRequest({
+          message: error.issues[0].message,
+        });
+      }
+
       console.log(error);
       return serverError();
     }

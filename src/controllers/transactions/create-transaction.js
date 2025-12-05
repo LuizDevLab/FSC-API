@@ -1,12 +1,6 @@
-import validator from "validator";
 import { badRequest, created, serverError } from "../helpers/http.js";
-import {
-  checkIfIdIsValid,
-  invalidIdResponse,
-  requiredFieldIsMissingResponse,
-  validateRequiredFields,
-} from "../helpers/validation.js";
-import { checkIfAmountIsValid, checkIfTypeIsValid, invalidAmountResponse, invalidTypeResponse } from "../helpers/transaction.js";
+import { z, ZodError } from "zod";
+import { createTransactionSchema } from "../../schemas/schemas-transaction.js";
 
 export class CreateTransactionController {
   constructor(createTransactionUseCase) {
@@ -17,45 +11,21 @@ export class CreateTransactionController {
     try {
       const params = httpRequest.body;
 
-      const requiredFields = ["user_id", "name", "date", "amount", "type"];
-
-      // Validação de campos obrigatórios
-      const { ok: requiredFieldsWereProvided, missingFields } = validateRequiredFields(
-        params,
-        requiredFields
-      );
-
-      if (!requiredFieldsWereProvided) {
-        return requiredFieldIsMissingResponse(missingFields)
-      }
-
-      const userIdIsValid = checkIfIdIsValid(params.user_id);
-
-      if (!userIdIsValid) {
-        return invalidIdResponse();
-      }
-
-      const amountIsValid = checkIfAmountIsValid(params.amount)
-
-      if (!amountIsValid) {
-        return invalidAmountResponse()
-      }
-
-      const type = params.type.trim().toUpperCase();
-
-      const typeIsValid = checkIfTypeIsValid(type)
-
-      if (!typeIsValid) {
-        return invalidTypeResponse()
-      }
+      await createTransactionSchema.parseAsync(params)
 
       const transaction = await this.createTransactionUseCase.execute({
         ...params,
-        type,
       });
 
       return created(transaction);
     } catch (error) {
+
+      if (error instanceof ZodError) {
+        return badRequest({
+          message: error.issues[0].message
+        })
+      }
+
       console.error(error);
       return serverError();
     }

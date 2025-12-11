@@ -14,23 +14,6 @@ export class PostgresCreateTransactionRepository {
       },
     });
 
-    // const query = `
-    //   INSERT INTO transactions (id, user_id, name, date, amount, type)
-    //   VALUES ($1, $2, $3, $4, $5, $6)
-    //   RETURNING *;
-    // `;
-
-    // const values = [
-    //   createTransactionsParams.id,
-    //   createTransactionsParams.user_id,
-    //   createTransactionsParams.name,
-    //   createTransactionsParams.date,
-    //   createTransactionsParams.amount,
-    //   createTransactionsParams.type,
-    // ];
-
-    // const results = await PostgresHelper.query(query, values);
-
-    // return results[0];
+   
   }
 }

@@ -1,4 +1,3 @@
-import { PostgresHelper } from "../../db/postgres/helper.js";
 import { prisma } from "../../../prisma/prisma.js";
 
 export class PostgresGetUserBalanceRepository {

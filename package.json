@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "jest",
-    "test:watch": "jest --watch",
+    "test:watch": "jest --watch --passWithNoTests",
     "migrations": "node src/db/postgres/migrations/exec.js",
     "start:dev": "node --watch index.js"
   },
@@ -14,7 +14,10 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.2",
     "@prisma/client": "^6.19.0",
+    "babel-jest": "^30.3.0",
     "eslint": "^8.46.0",
     "jest": "^30.3.0",
     "prisma": "^6.19.0"
